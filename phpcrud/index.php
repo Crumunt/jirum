@@ -1,103 +1,49 @@
-<?php
-@include 'config.php';
-session_start();
-
-if(isset($_SESSION['student_name']) || isset($_SESSION['admin_name'])) {
-
-   if($row['user_type'] == 'admin'){
-      header('location: admincrud.php');
-   } else {
-      header('location: viewstudent.php');
-   }
-
-   exit();
-
-}
-
-if(isset($_POST['submit'])){
-
-   $email = mysqli_real_escape_string($conn, $_POST['email']);
-   $password = $_POST['password'];
-   
-   $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-   $select = "SELECT * FROM student INNER JOIN login ON student.id = login.student_id AND student.email = '$email'";
-   $result = mysqli_query($conn, $select);
-
-   if(mysqli_num_rows($result) > 0){
-
-      $row = mysqli_fetch_assoc($result);
-
-      if (password_verify($password, $row['password'])) {
-         $_SESSION['loggedin'] = true;
-         $_SESSION['user_id'] = $row['student_id'];
-
-         if($row['user_type'] == 'admin'){
-            $_SESSION['admin_name'] = $row['name'];
-            header('location: admincrud.php');
-         } else {
-            $_SESSION["student_name"] = $row['name'];
-            header('location: viewstudent.php');
-         
-         }
-      } else {
-         echo "<script>
-         window.onload = function() {
-         var errorPopup = document.createElement('div');
-         errorPopup.innerHTML = '<span class=\"error-msg\">Incorrect email or password! Please check your credentials and try again.</span>';
-         errorPopup.className = 'popup';
-         document.body.appendChild(errorPopup);
-         setTimeout(function() {
-            errorPopup.style.display = 'none';
-         }, 1000); // Hides the popup after 1 second (1000 milliseconds)
-      };
-         </script>";
-
-      }
-
-   } 
-}
-
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Login form</title>
-  
-   <link rel="stylesheet" href="style.css">
+
+   <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+   <script src="bootstrap/js/bootstrap.js"></script>
 </head>
-<body>  
 
-<div class="container">
-   <div class="box form-box">
+<style>
+   body {
+      height: 100vh;
+   }
+</style>
+
+<body class="container mt-5">
+
+   <div class="w-100 d-flex align-items-center justify-content-center h-100 flex-column mx-auto">
       <h1>Login</h1>
-      <form action="" method="POST">
-      
-      <div class = "field input">
-      <h3>Email</h3>
-      <input type="email" name="email" required placeholder="Enter your email">
-      </div>
+      <form action="form_handlers/login-signupHandler.php" method="POST" class="w-50 mt-3 border rounded-1 p-5 shadow">
 
-      <div class = "field input">
-      <h3>Password</h3>
-      <input type="password" name="password" required placeholder="Enter your password">
-      </div>
+         <div class="form-group">
+            <label class="text-uppercase mb-1 form-label">Email</label>
+            <input class="form-control w-100 p-2" type="email" name="email" required placeholder="Enter your email">
+         </div>
 
-      <div class = "field input">
-      <input type="submit" name="submit" value="Login" class="btn">
-      </div>
+         <div class="form-group mt-3">
+            <label class="text-uppercase mb-1 form-label">Password</label>
+            <input class="form-control w-100 p-2" type="password" name="password" required placeholder="Enter your password">
+         </div>
 
-      <div class = "field input">
-      <p>Don't have an account? <a href="studentform.php">Register now</a></p>
-      <div>
+         <div class="form-group mt-3">
+            <input type="submit" name="login" value="Login" class="btn btn-primary w-100">
+         </div>
 
-   </form>
+         <div class="form-group mt-3">
+            <p class="text-center">Don't have an account? <a href="signup.php">Register now</a></p>
+            <div>
+
+      </form>
    </div>
-</div>
+
 </body>
+
 </html>
